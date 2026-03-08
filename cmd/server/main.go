@@ -38,6 +38,10 @@ func main() {
 	authService := service.NewAuthService(userRepo)
 	authHandler := handler.NewAuthHandler(authService)
 
+	formRepo := repository.NewFormRepository(pool)
+	formService := service.NewFormService(formRepo)
+	formHandler := handler.NewFormHandler(formService)
+
 	auth := router.Group("/auth")
 	{
 		auth.POST("/register", authHandler.Register)
@@ -51,6 +55,7 @@ func main() {
 			userID, _ := c.Get("user_id")
 			c.JSON(200, gin.H{"user_id": userID})
 		})
+		api.POST("/form", formHandler.CreateForm)
 	}
 
 	log.Println("server running")
