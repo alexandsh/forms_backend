@@ -39,3 +39,7 @@ func (s *FormService) CreateForm(ctx context.Context, userID int, req model.Crea
 
 	return formID, err
 }
+
+func (s *FormService) GetForm(ctx context.Context, id int) (*model.GetFormResponse, error) {
+	return s.repo.GetForm(ctx, id)
+}

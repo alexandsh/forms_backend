@@ -4,12 +4,14 @@ import (
 	"context"
 	"forms/internal/model"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
 type FormService interface {
 	CreateForm(ctx context.Context, userID int, req model.CreateFormRequest) (int, error)
+	GetForm(ctx context.Context, id int) (*model.GetFormResponse, error)
 }
 
 type FormHandler struct {
@@ -44,4 +46,24 @@ func (h *FormHandler) CreateForm(c *gin.Context) {
 		"id": formID,
 	})
 
+}
+
+func (h *FormHandler) GetForm(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	form, err := h.service.GetForm(c, id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, form)
 }

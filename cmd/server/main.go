@@ -56,6 +56,7 @@ func main() {
 			c.JSON(200, gin.H{"user_id": userID})
 		})
 		api.POST("/form", formHandler.CreateForm)
+		api.GET("/form/:id", formHandler.GetForm)
 	}
 
 	log.Println("server running")
