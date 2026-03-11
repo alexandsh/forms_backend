@@ -57,6 +57,7 @@ func main() {
 		})
 		api.POST("/form", formHandler.CreateForm)
 		api.GET("/form/:id", formHandler.GetForm)
+		api.GET("/forms", formHandler.GetForms)
 	}
 
 	log.Println("server running")

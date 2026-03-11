@@ -11,9 +11,13 @@ type CreateQuestionDTO struct {
 	Options []string `json:"options,omitempty"`
 }
 
+type GetFormsResponse struct {
+	Forms []*GetFormResponse `json:"forms"`
+}
+
 type GetFormResponse struct {
-	ID        int           `json:"id"`
-	Title     string        `json:"title"`
+	ID        int            `json:"id"`
+	Title     string         `json:"title"`
 	Questions []*QuestionDTO `json:"questions"`
 }
 

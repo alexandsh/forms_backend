@@ -54,9 +54,9 @@ func (r *FormRepository) CreateOption(ctx context.Context, qID int, opt string, 
 		INSERT INTO options (question_id, value, position)
 		VALUES ($1, $2, $3)
 	`
-	
+
 	_, err := r.pool.Exec(ctx, query, qID, opt, pos)
-	
+
 	return err
 }
 
@@ -95,17 +95,17 @@ func (r *FormRepository) GetForm(ctx context.Context, id int) (*model.GetFormRes
 
 	for rows.Next() {
 		var (
-			formID int
+			formID    int
 			formTitle string
 
-			qID *int
-			qType *string
+			qID    *int
+			qType  *string
 			qTitle *string
 
-			optID *int
+			optID    *int
 			optValue *string
 		)
-		
+
 		err := rows.Scan(
 			&formID,
 			&formTitle,
@@ -125,23 +125,120 @@ func (r *FormRepository) GetForm(ctx context.Context, id int) (*model.GetFormRes
 		q, exists := qMap[*qID]
 		if !exists {
 			q = &model.QuestionDTO{
-				ID: *qID,
-				Type: *qType,
-				Title: *qTitle,
+				ID:      *qID,
+				Type:    *qType,
+				Title:   *qTitle,
 				Options: []model.OptionDTO{},
 			}
 
 			qMap[*qID] = q
 			form.Questions = append(form.Questions, q)
 		}
-	
+
 		if optID != nil {
 			q.Options = append(q.Options, model.OptionDTO{
-				ID: *optID,
+				ID:    *optID,
 				Value: *optValue,
 			})
 		}
 	}
 
 	return form, nil
+}
+
+func (r *FormRepository) GetForms(ctx context.Context, userID int) (*model.GetFormsResponse, error) {
+	query := `
+		SELECT
+			f.id AS form_id,
+			f.title AS form_title,
+
+			q.id AS question_id,
+			q.type,
+			q.title AS question_title,
+
+			o.id AS option_id,
+			o.value AS option_value
+
+		FROM forms f
+		LEFT JOIN questions q ON q.form_id = f.id
+		LEFT JOIN options o ON o.question_id = q.id
+
+		WHERE f.user_id = $1
+
+		ORDER BY
+			f.id,
+			q.position,
+			o.position;
+	`
+
+	rows, err := r.pool.Query(ctx, query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	resp := &model.GetFormsResponse{}
+
+	formMap := map[int]*model.GetFormResponse{}
+	qMap := map[int]*model.QuestionDTO{}
+
+	for rows.Next() {
+		var (
+			formID    int
+			formTitle string
+
+			qID    *int
+			qType  *string
+			qTitle *string
+
+			optID    *int
+			optValue *string
+		)
+
+		err := rows.Scan(
+			&formID,
+			&formTitle,
+			&qID,
+			&qType,
+			&qTitle,
+			&optID,
+			&optValue,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		form, exists := formMap[formID]
+		if !exists {
+			form = &model.GetFormResponse{
+				ID: formID,
+				Title: formTitle,
+				Questions: []*model.QuestionDTO{},
+			}
+			formMap[formID] = form
+			resp.Forms = append(resp.Forms, form)
+		}
+
+		q, exists := qMap[*qID]
+		if !exists {
+			q = &model.QuestionDTO{
+				ID:      *qID,
+				Type:    *qType,
+				Title:   *qTitle,
+				Options: []model.OptionDTO{},
+			}
+
+			qMap[*qID] = q
+			form.Questions = append(form.Questions, q)
+		}
+
+		if optID != nil {
+			q.Options = append(q.Options, model.OptionDTO{
+				ID:    *optID,
+				Value: *optValue,
+			})
+		}
+	}
+
+	return resp, nil
 }

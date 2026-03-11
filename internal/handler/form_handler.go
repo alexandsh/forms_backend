@@ -12,6 +12,7 @@ import (
 type FormService interface {
 	CreateForm(ctx context.Context, userID int, req model.CreateFormRequest) (int, error)
 	GetForm(ctx context.Context, id int) (*model.GetFormResponse, error)
+	GetForms(ctx context.Context, userID int) (*model.GetFormsResponse, error)
 }
 
 type FormHandler struct {
@@ -58,6 +59,20 @@ func (h *FormHandler) GetForm(c *gin.Context) {
 	}
 
 	form, err := h.service.GetForm(c, id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, form)
+}
+
+func (h *FormHandler) GetForms(c *gin.Context) {
+	userID := c.GetInt("user_id")
+
+	form, err := h.service.GetForms(c.Request.Context(), userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
