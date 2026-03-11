@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 
 	"forms/internal/model"
 	"forms/internal/repository"
@@ -46,4 +47,17 @@ func (s *FormService) GetForm(ctx context.Context, id int) (*model.GetFormRespon
 
 func (s *FormService) GetForms(ctx context.Context, userID int) (*model.GetFormsResponse, error) {
 	return s.repo.GetForms(ctx, userID)
+}
+
+func (s *FormService) UpdateForm(ctx context.Context, userID int, formID int, req model.UpdateFormRequest) error {
+	ok, err := s.repo.IsFormOwner(ctx, userID, formID)
+	if err != nil {
+		return err
+	}
+
+	if !ok {
+		return errors.New("forbidden")
+	}
+	
+	return s.repo.UpdateForm(ctx, userID, formID, req)
 }

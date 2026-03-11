@@ -211,8 +211,8 @@ func (r *FormRepository) GetForms(ctx context.Context, userID int) (*model.GetFo
 		form, exists := formMap[formID]
 		if !exists {
 			form = &model.GetFormResponse{
-				ID: formID,
-				Title: formTitle,
+				ID:        formID,
+				Title:     formTitle,
 				Questions: []*model.QuestionDTO{},
 			}
 			formMap[formID] = form
@@ -241,4 +241,94 @@ func (r *FormRepository) GetForms(ctx context.Context, userID int) (*model.GetFo
 	}
 
 	return resp, nil
+}
+
+func (r *FormRepository) UpdateForm(ctx context.Context, userID int, formID int, req model.UpdateFormRequest) error {
+	tx, err := r.pool.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	if req.Title != nil {
+
+		_, err := tx.Exec(ctx, `UPDATE forms SET title=$1 WHERE id=$2 AND user_id=$3`, *req.Title, formID, userID)
+		if err != nil {
+			return err
+		}
+	}
+
+	if req.Questions != nil {
+		for _, q := range *req.Questions {
+			var qID int
+
+			if q.ID == nil {
+				err := tx.QueryRow(ctx, `INSERT INTO questions(form_id,type,title,position) VALUES ($1,$2,$3,$4) RETURNING id`,
+					formID, *q.Type, *q.Title, *q.Position).Scan(&qID)
+				if err != nil {
+					return err
+				}
+			} else {
+				if q.Title != nil {
+					_, err := tx.Exec(ctx, `UPDATE questions SET title=$1 WHERE id=$2`, *q.Title, *q.ID)
+					if err != nil{
+						return err	
+					}
+				}
+
+				if q.Type != nil {
+					_, err := tx.Exec(ctx, `UPDATE questions SET type=$1 WHERE id=$2`, *q.Type, *q.ID)
+					if err != nil{
+						return err	
+					}
+				}
+			}
+
+			if q.Options != nil {
+				for _, opt := range *q.Options {
+					if opt.ID == nil {
+						_, err := tx.Exec(ctx, `INSERT INTO options(question_id,value,position) VALUES ($1, $2, $3)`, qID, *opt.Value, opt.Position)
+						if err != nil {
+							return err
+						}
+					} else {
+						if opt.Value != nil {
+							_, err := tx.Exec(ctx, `UPDATE options SET value=$1 WHERE id=$2`, *opt.Value, *opt.ID)
+							if err != nil {
+								return err
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *FormRepository) IsFormOwner(ctx context.Context, userID int, formID int) (bool, error) {
+
+	var exists bool
+
+	err := r.pool.QueryRow(
+		ctx,
+		`SELECT EXISTS(
+			SELECT 1
+			FROM forms
+			WHERE id=$1 AND user_id=$2
+		)`,
+		formID,
+		userID,
+	).Scan(&exists)
+
+	if err != nil {
+		return false, err
+	}
+
+	return exists, nil
 }

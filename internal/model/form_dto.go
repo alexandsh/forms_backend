@@ -32,3 +32,22 @@ type OptionDTO struct {
 	ID    int    `json:"id"`
 	Value string `json:"value"`
 }
+
+type UpdateFormRequest struct {
+	Title     *string                  `json:"title"`
+	Questions *[]UpdateQuestionRequest `json:"questions"`
+}
+
+type UpdateQuestionRequest struct {
+	ID       *int                     `json:"id"`
+	Type     *string                  `json:"type"`
+	Title    *string                  `json:"title"`
+	Options  *[]UpdateOptionRequest   `json:"options"`
+	Position *int                     `json:"position"`
+}
+
+type UpdateOptionRequest struct {
+	ID       *int    `json:"id"`
+	Value    *string `json:"value"`
+	Position *int    `json:"position"`
+}

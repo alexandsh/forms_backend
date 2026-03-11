@@ -13,6 +13,7 @@ type FormService interface {
 	CreateForm(ctx context.Context, userID int, req model.CreateFormRequest) (int, error)
 	GetForm(ctx context.Context, id int) (*model.GetFormResponse, error)
 	GetForms(ctx context.Context, userID int) (*model.GetFormsResponse, error)
+	UpdateForm(ctx context.Context, userID int, formID int, req model.UpdateFormRequest) error
 }
 
 type FormHandler struct {
@@ -81,4 +82,34 @@ func (h *FormHandler) GetForms(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, form)
+}
+
+func (h *FormHandler) UpdateForm(c *gin.Context) {
+	userID := c.GetInt("user_id")
+
+	formID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	var req model.UpdateFormRequest
+	if err := c.ShouldBindJSON(&req); err != nil{
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	err = h.service.UpdateForm(c.Request.Context(), userID, formID, req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.Status(http.StatusNoContent)
 }
