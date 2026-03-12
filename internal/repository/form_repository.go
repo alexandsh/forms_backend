@@ -311,6 +311,19 @@ func (r *FormRepository) UpdateForm(ctx context.Context, userID int, formID int,
 	return nil
 }
 
+func (r *FormRepository) DeleteForm(ctx context.Context, formID int) error {
+	query := `
+		DELETE FROM forms WHERE id=$1
+	`
+	
+	_, err := r.pool.Exec(ctx, query, formID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (r *FormRepository) IsFormOwner(ctx context.Context, userID int, formID int) (bool, error) {
 
 	var exists bool

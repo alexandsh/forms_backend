@@ -16,7 +16,7 @@ import (
 
 func main() {
 	godotenv.Load()
-	
+
 	router := gin.Default()
 
 	ctx := context.Background()
@@ -25,14 +25,13 @@ func main() {
 	if err != nil {
 		log.Fatalf("connetction failed: %v", err)
 	}
-	defer pool.Close()	
+	defer pool.Close()
 
 	if err := pool.Ping(ctx); err != nil {
 		log.Fatalf("connetction failed: %v", err)
 	}
 
 	log.Println("connection done")
-
 
 	userRepo := repository.NewUserRepository(pool)
 	authService := service.NewAuthService(userRepo)
@@ -58,7 +57,8 @@ func main() {
 		api.POST("/form", formHandler.CreateForm)
 		api.GET("/form/:id", formHandler.GetForm)
 		api.GET("/forms", formHandler.GetForms)
-		api.PATCH("/forms/:id", formHandler.UpdateForm)
+		api.PATCH("/form/:id", formHandler.UpdateForm)
+		api.DELETE("/form/:id", formHandler.DeleteForm)
 	}
 
 	log.Println("server running")

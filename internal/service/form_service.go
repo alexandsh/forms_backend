@@ -61,3 +61,16 @@ func (s *FormService) UpdateForm(ctx context.Context, userID int, formID int, re
 	
 	return s.repo.UpdateForm(ctx, userID, formID, req)
 }
+
+func (s *FormService) DeleteForm(ctx context.Context, userID int, formID int) error {
+	ok, err := s.repo.IsFormOwner(ctx, userID, formID)
+	if err != nil {
+		return err
+	}
+
+	if !ok {
+		return errors.New("forbidden")
+	}
+
+	return s.repo.DeleteForm(ctx, formID)
+}
