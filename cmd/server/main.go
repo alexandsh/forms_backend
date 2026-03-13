@@ -59,6 +59,7 @@ func main() {
 		api.GET("/forms", formHandler.GetForms)
 		api.PATCH("/form/:id", formHandler.UpdateForm)
 		api.DELETE("/form/:id", formHandler.DeleteForm)
+		api.POST("/form/:id/responses", formHandler.CreateResponse)
 	}
 
 	log.Println("server running")

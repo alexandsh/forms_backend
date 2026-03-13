@@ -271,15 +271,15 @@ func (r *FormRepository) UpdateForm(ctx context.Context, userID int, formID int,
 			} else {
 				if q.Title != nil {
 					_, err := tx.Exec(ctx, `UPDATE questions SET title=$1 WHERE id=$2`, *q.Title, *q.ID)
-					if err != nil{
-						return err	
+					if err != nil {
+						return err
 					}
 				}
 
 				if q.Type != nil {
 					_, err := tx.Exec(ctx, `UPDATE questions SET type=$1 WHERE id=$2`, *q.Type, *q.ID)
-					if err != nil{
-						return err	
+					if err != nil {
+						return err
 					}
 				}
 			}
@@ -315,11 +315,46 @@ func (r *FormRepository) DeleteForm(ctx context.Context, formID int) error {
 	query := `
 		DELETE FROM forms WHERE id=$1
 	`
-	
+
 	_, err := r.pool.Exec(ctx, query, formID)
 	if err != nil {
 		return err
 	}
+
+	return nil
+}
+
+func (r *FormRepository) CreateResponse(ctx context.Context, formID int, userID int, req model.CreateResponseRequest) error {
+	tx, err := r.pool.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	var rID int
+	query := `
+		INSERT INTO responses (form_id,user_id)
+		VALUES ($1,$2)
+		RETURNING id
+	`
+
+	err = tx.QueryRow(ctx, query, formID, userID).Scan(&rID)
+	if err != nil {
+		return err
+	}
+
+	for _, ans := range req.Answers {
+		query := `
+			INSERT INTO answers(response_id,question_id,option_id,text_value)
+			VALUES ($1,$2,$3,$4)
+		`
+		_, err := tx.Exec(ctx, query, rID, ans.QuestionID, ans.OptionID, ans.TextValue)
+		if err != nil {
+			return err
+		}
+	}
+
+	tx.Commit(ctx)
 
 	return nil
 }

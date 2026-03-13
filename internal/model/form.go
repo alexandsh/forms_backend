@@ -39,15 +39,25 @@ type UpdateFormRequest struct {
 }
 
 type UpdateQuestionRequest struct {
-	ID       *int                     `json:"id"`
-	Type     *string                  `json:"type"`
-	Title    *string                  `json:"title"`
-	Options  *[]UpdateOptionRequest   `json:"options"`
-	Position *int                     `json:"position"`
+	ID       *int                   `json:"id"`
+	Type     *string                `json:"type"`
+	Title    *string                `json:"title"`
+	Options  *[]UpdateOptionRequest `json:"options"`
+	Position *int                   `json:"position"`
 }
 
 type UpdateOptionRequest struct {
 	ID       *int    `json:"id"`
 	Value    *string `json:"value"`
 	Position *int    `json:"position"`
+}
+
+type CreateResponseRequest struct {
+	Answers []CreateAnswerDTO `json:"answers"`
+}
+
+type CreateAnswerDTO struct {
+	QuestionID int     `json:"question_id"`
+	OptionID   *int    `json:"option_id,omitempty"`
+	TextValue  *string `json:"text_value,omitempty"`
 }
