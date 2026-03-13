@@ -39,10 +39,16 @@ func main() {
 		log.Fatalf("connetction failed: %v", err)
 	}
 
+	redis := db.NewRedis()
+
+	if err := db.PingRedis(redis); err != nil {
+		log.Fatalf("connection failed (redis): %v", err)
+	}
+
 	log.Println("connection done")
 
 	userRepo := repository.NewUserRepository(pool)
-	authService := service.NewAuthService(userRepo)
+	authService := service.NewAuthService(userRepo, redis)
 	authHandler := handler.NewAuthHandler(authService)
 
 	formRepo := repository.NewFormRepository(pool)
@@ -53,6 +59,7 @@ func main() {
 	{
 		auth.POST("/register", authHandler.Register)
 		auth.POST("/login", authHandler.Login)
+		auth.POST("/refresh", authHandler.Refresh)
 	}
 
 	api := router.Group("/api")

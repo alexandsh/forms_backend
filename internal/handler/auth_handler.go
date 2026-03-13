@@ -9,7 +9,8 @@ import (
 
 type AuthService interface {
 	Register(ctx context.Context, email string, password string) error
-	Login(ctx context.Context, email string, password string) (string, error)
+	Login(ctx context.Context, email string, password string) (string, string, error)
+	Refresh(ctx context.Context, refreshToken string) (string, error)
 }
 
 type AuthHandler struct {
@@ -28,6 +29,10 @@ type RegisterRequest struct {
 type LoginRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
+}
+
+type RefreshRequest struct {
+	RefreshToken string `json:"refresh_token"`
 }
 
 // Register godoc
@@ -86,7 +91,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	token, err := h.service.Login(c.Request.Context(), req.Email, req.Password)
+	accessToken, refreshToken, err := h.service.Login(c.Request.Context(), req.Email, req.Password)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"error": "invalid credentials",
@@ -95,7 +100,31 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"token": token,
+		"access_token":  accessToken,
+		"refresh_token": refreshToken,
+	})
+}
+
+func (h *AuthHandler) Refresh(c *gin.Context) {
+	var req RefreshRequest
+
+	if err := c.BindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "invalid request",
+		})
+		return
+	}
+
+	token, err := h.service.Refresh(c.Request.Context(), req.RefreshToken)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "invalid refresh token",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"access_token": token,
 	})
 }
 
