@@ -47,7 +47,32 @@
         "body": {
           "mode": "raw",
           "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"Passw0rd!\"\n}"
-        }
+        },
+        "description": "Возвращает пару access_token / refresh_token. Перенеси access_token в переменную {{access_token}}, а refresh_token в {{refresh_token}}."
+      }
+    },
+    {
+      "name": "Auth - Refresh",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/auth/refresh",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["auth", "refresh"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}"
+        },
+        "description": "По действующему refresh_token возвращает новый access_token. Скопируй access_token из ответа в переменную {{access_token}}."
       }
     },
     {
@@ -61,7 +86,7 @@
           },
           {
             "key": "Authorization",
-            "value": "Bearer {{token}}"
+            "value": "Bearer {{access_token}}"
           }
         ],
         "url": {
@@ -84,7 +109,7 @@
         "header": [
           {
             "key": "Authorization",
-            "value": "Bearer {{token}}"
+            "value": "Bearer {{access_token}}"
           }
         ],
         "url": {
@@ -103,7 +128,7 @@
         "header": [
           {
             "key": "Authorization",
-            "value": "Bearer {{token}}"
+            "value": "Bearer {{access_token}}"
           }
         ],
         "url": {
@@ -126,7 +151,7 @@
           },
           {
             "key": "Authorization",
-            "value": "Bearer {{token}}"
+            "value": "Bearer {{access_token}}"
           }
         ],
         "url": {
@@ -149,7 +174,7 @@
         "header": [
           {
             "key": "Authorization",
-            "value": "Bearer {{token}}"
+            "value": "Bearer {{access_token}}"
           }
         ],
         "url": {
@@ -191,7 +216,11 @@
   ],
   "variable": [
     {
-      "key": "token",
+      "key": "access_token",
+      "value": ""
+    },
+    {
+      "key": "refresh_token",
       "value": ""
     },
     {

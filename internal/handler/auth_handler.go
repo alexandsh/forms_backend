@@ -72,7 +72,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 
 // Login godoc
 // @Summary      Логин пользователя
-// @Description  Авторизация по email и паролю, возвращает JWT-токен
+// @Description  Авторизация по email и паролю, возвращает пару access/refresh токенов
 // @Tags         auth
 // @Accept       json
 // @Produce      json
@@ -105,6 +105,17 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	})
 }
 
+// Refresh godoc
+// @Summary      Обновление access-токена
+// @Description  Принимает refresh-токен и возвращает новый access-токен
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        request  body      RefreshRequest  true  "Refresh-токен"
+// @Success      200      {object}  map[string]string
+// @Failure      400      {object}  map[string]string
+// @Failure      401      {object}  map[string]string
+// @Router       /auth/refresh [post]
 func (h *AuthHandler) Refresh(c *gin.Context) {
 	var req RefreshRequest
 
