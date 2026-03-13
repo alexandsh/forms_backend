@@ -1,9 +1,15 @@
 package main
 
+// @title           SL Forms API
+// @version         1.0
+// @description     API form-сервиса
+// @BasePath        /
+
 import (
 	"context"
 	"log"
 
+	_ "forms/docs"
 	"forms/internal/db"
 	"forms/internal/handler"
 	"forms/internal/middleware"
@@ -12,6 +18,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func main() {
@@ -61,6 +69,9 @@ func main() {
 		api.DELETE("/form/:id", formHandler.DeleteForm)
 		api.POST("/form/:id/responses", formHandler.CreateResponse)
 	}
+
+	// Swagger UI
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	log.Println("server running")
 	router.Run(":8080")

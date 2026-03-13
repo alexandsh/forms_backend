@@ -26,6 +26,17 @@ func NewFormHandler(service FormService) *FormHandler {
 	return &FormHandler{service: service}
 }
 
+// CreateForm godoc
+// @Summary      Создание формы
+// @Description  Создает новую форму с вопросами (text, radio, checkbox)
+// @Tags         forms
+// @Accept       json
+// @Produce      json
+// @Param        request  body      model.CreateFormRequest  true  "Данные формы"
+// @Success      201      {object}  map[string]int
+// @Failure      400      {object}  map[string]string
+// @Failure      500      {object}  map[string]string
+// @Router       /api/form [post]
 func (h *FormHandler) CreateForm(c *gin.Context) {
 	userID := c.GetInt("user_id")
 
@@ -52,6 +63,16 @@ func (h *FormHandler) CreateForm(c *gin.Context) {
 
 }
 
+// GetForm godoc
+// @Summary      Получение формы
+// @Description  Возвращает форму по идентификатору
+// @Tags         forms
+// @Produce      json
+// @Param        id   path      int  true  "ID формы"
+// @Success      200  {object}  model.GetFormResponse
+// @Failure      400  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Router       /api/form/{id} [get]
 func (h *FormHandler) GetForm(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -72,6 +93,14 @@ func (h *FormHandler) GetForm(c *gin.Context) {
 	c.JSON(http.StatusOK, form)
 }
 
+// GetForms godoc
+// @Summary      Список своих форм
+// @Description  Возвращает все формы, созданные текущим пользователем
+// @Tags         forms
+// @Produce      json
+// @Success      200  {object}  model.GetFormsResponse
+// @Failure      500  {object}  map[string]string
+// @Router       /api/forms [get]
 func (h *FormHandler) GetForms(c *gin.Context) {
 	userID := c.GetInt("user_id")
 
@@ -86,6 +115,19 @@ func (h *FormHandler) GetForms(c *gin.Context) {
 	c.JSON(http.StatusOK, form)
 }
 
+// UpdateForm godoc
+// @Summary      Обновление формы
+// @Description  Обновляет заголовок формы и/или список вопросов
+// @Tags         forms
+// @Accept       json
+// @Produce      json
+// @Param        id       path      int                         true  "ID формы"
+// @Param        request  body      model.UpdateFormRequest     true  "Данные для обновления"
+// @Success      204      "No Content"
+// @Failure      400      {object}  map[string]string
+// @Failure      403      {object}  map[string]string
+// @Failure      500      {object}  map[string]string
+// @Router       /api/form/{id} [patch]
 func (h *FormHandler) UpdateForm(c *gin.Context) {
 	userID := c.GetInt("user_id")
 
@@ -116,6 +158,17 @@ func (h *FormHandler) UpdateForm(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
+// DeleteForm godoc
+// @Summary      Удаление формы
+// @Description  Удаляет форму по идентификатору
+// @Tags         forms
+// @Produce      json
+// @Param        id   path      int  true  "ID формы"
+// @Success      204  "No Content"
+// @Failure      400  {object}  map[string]string
+// @Failure      403  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Router       /api/form/{id} [delete]
 func (h *FormHandler) DeleteForm(c *gin.Context) {
 	userID := c.GetInt("user_id")
 
@@ -138,6 +191,18 @@ func (h *FormHandler) DeleteForm(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
+// CreateResponse godoc
+// @Summary      Отправка ответа на форму
+// @Description  Создает ответ на форму с учетом типов вопросов
+// @Tags         forms
+// @Accept       json
+// @Produce      json
+// @Param        id       path      int                          true  "ID формы"
+// @Param        request  body      model.CreateResponseRequest  true  "Ответ на форму"
+// @Success      201      "Created"
+// @Failure      400      {object}  map[string]string
+// @Failure      500      {object}  map[string]string
+// @Router       /api/form/{id}/responses [post]
 func (h *FormHandler) CreateResponse(c *gin.Context) {
 	userID := c.GetInt("user_id")
 
