@@ -2,6 +2,79 @@
 
 Бэкенд сервиса форм на Go (Gin, PostgreSQL, Redis).
 
+### Запуск без Docker
+
+Ниже описан сценарий для человека, у которого **нет Docker**, но есть возможность поставить Go, PostgreSQL и Redis.
+
+#### 1. Установить зависимости
+
+- **Go 1.25.3**
+- **PostgreSQL 18**
+- **Redis**
+
+#### 2. Создать базу данных
+
+1. Запустить PostgreSQL.
+2. Создать базу и пользователя (ниже пример):
+
+```sql
+CREATE DATABASE sl_forms;
+CREATE USER sl_forms WITH ENCRYPTED PASSWORD 'sl_forms_password';
+GRANT ALL PRIVILEGES ON DATABASE sl_forms TO sl_forms;
+```
+
+3. Применить SQL‑скрипт из раздела «Инициализация базы данных (создание таблиц)» к базе `sl_forms`.
+
+#### 3. Запустить Redis
+
+Просто запустить локальный сервер Redis (по умолчанию он слушает `localhost:6379`).
+
+#### 4. Настроить переменные окружения
+
+В корне проекта можно создать файл `.env` со значениями:
+
+```dotenv
+DATABASE_URL=postgres://sl_forms:sl_forms_password@localhost:5432/sl_forms?sslmode=disable
+REDIS_ADDR=localhost:6379
+JWT_SECRET=your_jwt_secret_here
+```
+
+Либо выставить эти переменные вручную в терминале перед запуском:
+
+```bash
+set DATABASE_URL=postgres://sl_forms:sl_forms_password@localhost:5432/sl_forms?sslmode=disable
+set REDIS_ADDR=localhost:6379
+set JWT_SECRET=your_jwt_secret_here
+```
+
+#### 5. Установить Go‑зависимости
+
+В корне проекта:
+
+```bash
+go mod tidy
+go mod download
+```
+
+#### 6. Запуск приложения
+
+Из корня репозитория:
+
+```bash
+go run cmd/server/main.go
+```
+
+После этого API будет доступен на `http://localhost:8080`, а Swagger — по адресу `http://localhost:8080/swagger/index.html`.
+
+
+### Работа с Postman-коллекцией
+
+Postman-коллекция реализована .json формате.
+
+1. Запустить Postman
+2. Items -> три точки -> Import
+3. Выбрать файл коллекции
+
 ### Запуск через Docker Compose
 
 Требуется установленный Docker и Docker Compose.
