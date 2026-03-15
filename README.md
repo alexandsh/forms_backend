@@ -20,7 +20,7 @@ docker-compose up --build
 Переменные окружения для приложения внутри контейнера:
 - `DATABASE_URL=postgres://sl_forms:sl_forms_password@db:5432/sl_forms?sslmode=disable`
 - `REDIS_ADDR=redis:6379`
-- `JWT_SECRET=supersecretjwt` (обязательно заменить на свой секрет).
+- `JWT_SECRET=supersecretjwt` (заменить на свой секрет).
 
 ### Инициализация базы данных (создание таблиц)
 
@@ -68,19 +68,3 @@ CREATE TABLE answers (
     text_value TEXT
 );
 ```
-
-#### Как применить SQL в Docker окружении
-
-1. Убедиться, что сервисы запущены:
-
-```bash
-docker-compose up -d
-```
-
-2. Зайти в контейнер с PostgreSQL:
-
-```bash
-docker exec -it sl_forms_db psql -U sl_forms -d sl_forms
-```
-
-3. В открывшейся консоли `psql` вставить SQL‑скрипт выше и выполнить.
