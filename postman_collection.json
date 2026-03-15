@@ -205,7 +205,7 @@
           "protocol": "http",
           "host": ["localhost"],
           "port": "8080",
-          "path": ["api", "forms", "{{form_id}}", "responses"]
+          "path": ["api", "form", "{{form_id}}", "responses"]
         },
         "body": {
           "mode": "raw",

@@ -22,9 +22,9 @@ func JWTMiddleware() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		
+
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
-		
+
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, jwt.ErrSignatureInvalid
@@ -39,12 +39,12 @@ func JWTMiddleware() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		
+
 		claims := token.Claims.(jwt.MapClaims)
 		userID := int(claims["user_id"].(float64))
 
 		c.Set("user_id", userID)
-		
+
 		c.Next()
 	}
 }

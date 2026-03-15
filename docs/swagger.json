@@ -1,7 +1,7 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "API сервиса создания и заполнения форм.",
+        "description": "API form-сервиса",
         "title": "SL Forms API",
         "contact": {},
         "version": "1.0"
