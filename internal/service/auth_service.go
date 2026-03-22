@@ -2,18 +2,26 @@ package service
 
 import (
 	"context"
+	"errors"
+	"time"
 
 	"forms/internal/model"
 	"forms/internal/repository"
 	"forms/internal/utils"
+
+	"github.com/redis/go-redis/v9"
 )
 
 type AuthService struct {
-	repo *repository.UserRepository
+	repo  *repository.UserRepository
+	redis *redis.Client
 }
 
-func NewAuthService(repo *repository.UserRepository) *AuthService {
-	return &AuthService{repo: repo}
+func NewAuthService(repo *repository.UserRepository, redis *redis.Client) *AuthService {
+	return &AuthService{
+		repo:  repo,
+		redis: redis,
+	}
 }
 
 func (s *AuthService) Register(ctx context.Context, email string, password string) error {
@@ -30,15 +38,36 @@ func (s *AuthService) Register(ctx context.Context, email string, password strin
 	return s.repo.Create(ctx, user)
 }
 
-func (s *AuthService) Login(ctx context.Context, email string, password string) (string, error) {
+func (s *AuthService) Login(ctx context.Context, email string, password string) (string, string, error) {
 	user, err := s.repo.Get(ctx, email)
+	if err != nil {
+		return "", "", err
+	}
+
+	if !utils.CheckPassword(password, user.PasswordHash) {
+		return "", "", errors.New("invalid credentials")
+	}
+
+	accessToken, err := utils.GenerateAccessToken(user.ID)
+	if err != nil {
+		return "", "", err
+	}
+
+	refreshToken := utils.GenerateRefreshToken()
+
+	err = s.redis.Set(ctx, refreshToken, user.ID, 7*24*time.Hour).Err()
+	if err != nil {
+		return "", "", err
+	}
+
+	return accessToken, refreshToken, nil
+}
+
+func (s *AuthService) Refresh(ctx context.Context, refreshToken string) (string, error) {
+	userID, err := s.redis.Get(ctx, refreshToken).Int()
 	if err != nil {
 		return "", err
 	}
 
-	if !utils.CheckPassword(password, user.PasswordHash) {
-		return "", err
-	}
-
-	return utils.GenerateToken(user.ID)
+	return utils.GenerateAccessToken(userID)
 }

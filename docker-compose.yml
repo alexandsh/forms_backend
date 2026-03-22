@@ -1,0 +1,46 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: sl_forms_db
+    environment:
+      POSTGRES_DB: sl_forms
+      POSTGRES_USER: sl_forms
+      POSTGRES_PASSWORD: sl_forms_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - sl_forms_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sl_forms -d sl_forms"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: sl_forms_redis
+    ports:
+      - "6379:6379"
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sl_forms_app
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      DATABASE_URL: postgres://sl_forms:sl_forms_password@db:5432/sl_forms?sslmode=disable
+      REDIS_ADDR: redis:6379
+      JWT_SECRET: supersecretjwt
+    ports:
+      - "8080:8080"
+
+volumes:
+  sl_forms_pgdata:
+

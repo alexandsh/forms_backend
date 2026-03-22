@@ -1,0 +1,421 @@
+basePath: /
+definitions:
+  handler.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  handler.RegisterRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  model.CreateAnswerDTO:
+    properties:
+      option_id:
+        type: integer
+      question_id:
+        type: integer
+      text_value:
+        type: string
+    type: object
+  model.CreateFormRequest:
+    properties:
+      questions:
+        items:
+          $ref: '#/definitions/model.CreateQuestionDTO'
+        type: array
+      title:
+        type: string
+    type: object
+  model.CreateQuestionDTO:
+    properties:
+      options:
+        items:
+          type: string
+        type: array
+      title:
+        type: string
+      type:
+        type: string
+    type: object
+  model.CreateResponseRequest:
+    properties:
+      answers:
+        items:
+          $ref: '#/definitions/model.CreateAnswerDTO'
+        type: array
+    type: object
+  model.GetFormResponse:
+    properties:
+      id:
+        type: integer
+      questions:
+        items:
+          $ref: '#/definitions/model.QuestionDTO'
+        type: array
+      title:
+        type: string
+    type: object
+  model.GetFormsResponse:
+    properties:
+      forms:
+        items:
+          $ref: '#/definitions/model.GetFormResponse'
+        type: array
+    type: object
+  model.OptionDTO:
+    properties:
+      id:
+        type: integer
+      value:
+        type: string
+    type: object
+  model.QuestionDTO:
+    properties:
+      id:
+        type: integer
+      options:
+        items:
+          $ref: '#/definitions/model.OptionDTO'
+        type: array
+      title:
+        type: string
+      type:
+        type: string
+    type: object
+  model.UpdateFormRequest:
+    properties:
+      questions:
+        items:
+          $ref: '#/definitions/model.UpdateQuestionRequest'
+        type: array
+      title:
+        type: string
+    type: object
+  model.UpdateOptionRequest:
+    properties:
+      id:
+        type: integer
+      position:
+        type: integer
+      value:
+        type: string
+    type: object
+  model.UpdateQuestionRequest:
+    properties:
+      id:
+        type: integer
+      options:
+        items:
+          $ref: '#/definitions/model.UpdateOptionRequest'
+        type: array
+      position:
+        type: integer
+      title:
+        type: string
+      type:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: API сервиса создания и заполнения форм.
+  title: SL Forms API
+  version: "1.0"
+paths:
+  /api/form:
+    post:
+      consumes:
+      - application/json
+      description: Создает новую форму с вопросами (text, radio, checkbox)
+      parameters:
+      - description: Данные формы
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateFormRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Создание формы
+      tags:
+      - forms
+  /api/form/{id}:
+    delete:
+      description: Удаляет форму по идентификатору
+      parameters:
+      - description: ID формы
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Удаление формы
+      tags:
+      - forms
+    get:
+      description: Возвращает форму по идентификатору
+      parameters:
+      - description: ID формы
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.GetFormResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получение формы
+      tags:
+      - forms
+    patch:
+      consumes:
+      - application/json
+      description: Обновляет заголовок формы и/или список вопросов
+      parameters:
+      - description: ID формы
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Данные для обновления
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateFormRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Обновление формы
+      tags:
+      - forms
+  /api/form/{id}/responses:
+    post:
+      consumes:
+      - application/json
+      description: Создает ответ на форму с учетом типов вопросов
+      parameters:
+      - description: ID формы
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Ответ на форму
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateResponseRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Отправка ответа на форму
+      tags:
+      - forms
+  /api/forms:
+    get:
+      description: Возвращает все формы, созданные текущим пользователем
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.GetFormsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Список своих форм
+      tags:
+      - forms
+  /api/profile:
+    get:
+      description: Возвращает идентификатор аутентифицированного пользователя
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Профиль текущего пользователя
+      tags:
+      - auth
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Авторизация по email и паролю, возвращает JWT-токен
+      parameters:
+      - description: Данные для логина
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Логин пользователя
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Создает нового пользователя по email и паролю
+      parameters:
+      - description: Данные для регистрации
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Регистрация пользователя
+      tags:
+      - auth
+swagger: "2.0"

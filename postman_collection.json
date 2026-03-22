@@ -1,0 +1,232 @@
+{
+  "info": {
+    "name": "SL_Forms API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth - Register",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/auth/register",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["auth", "register"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"Passw0rd!\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Auth - Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/auth/login",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["auth", "login"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"Passw0rd!\"\n}"
+        },
+        "description": "Возвращает пару access_token / refresh_token. Перенеси access_token в переменную {{access_token}}, а refresh_token в {{refresh_token}}."
+      }
+    },
+    {
+      "name": "Auth - Refresh",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/auth/refresh",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["auth", "refresh"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}"
+        },
+        "description": "По действующему refresh_token возвращает новый access_token. Скопируй access_token из ответа в переменную {{access_token}}."
+      }
+    },
+    {
+      "name": "Form - Create",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/api/form",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "form"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Опрос о сервисе\",\n  \"questions\": [\n    {\"type\": \"text\", \"title\": \"Как вас зовут?\"},\n    {\"type\": \"radio\", \"title\": \"Оцените наш сервис\", \"options\": [\"Плохо\", \"Нормально\", \"Отлично\"]},\n    {\"type\": \"checkbox\", \"title\": \"Что вам понравилось?\", \"options\": [\"Скорость\", \"Цена\", \"Поддержка\"]}\n  ]\n}"
+        }
+      }
+    },
+    {
+      "name": "Form - Get by ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/api/form/{{form_id}}",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "form", "{{form_id}}"]
+        }
+      }
+    },
+    {
+      "name": "Form - Get My Forms",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/api/forms",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "forms"]
+        }
+      }
+    },
+    {
+      "name": "Form - Update",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/api/form/{{form_id}}",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "form", "{{form_id}}"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Обновлённый опрос\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Form - Delete",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/api/form/{{form_id}}",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "form", "{{form_id}}"]
+        }
+      }
+    },
+    {
+      "name": "Form - Create Response",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/api/forms/{{form_id}}/responses",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "form", "{{form_id}}", "responses"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"answers\": [\n    {\"question_id\": 10, \"text_value\": \"Иван\"},\n    {\"question_id\": 11, \"option_id\": 102},\n    {\"question_id\": 12, \"option_id\": 200},\n    {\"question_id\": 12, \"option_id\": 202}\n  ]\n}"
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "access_token",
+      "value": ""
+    },
+    {
+      "key": "refresh_token",
+      "value": ""
+    },
+    {
+      "key": "form_id",
+      "value": "1"
+    }
+  ]
+}
+
